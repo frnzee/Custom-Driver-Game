@@ -1,25 +1,28 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Ambulance : MonoBehaviour
 {
     [SerializeField] private AxleInfo [] _ambulanceAxis = new AxleInfo[3];
 
-    public float ambulanceSpeed = 300f;
-    public float brakeSpeed = 200f;
-    public float steeringAngle = 30;
-    public float maxSpeed;
+    public float accelerationSpeed = 100f;
+    public float brakeSpeed = 100f;
+    public float steeringAngle = 30f;
+    public float maxSpeed = 15f;
+
+    public Text speedText;
 
     public Transform centerOfMass;
 
     public ParticleSystem dirt_L;
     public ParticleSystem dirt_R;
 
-    private float horizontalInput;
-    private float verticalInput;
+    private float _horizontalInput;
+    private float _verticalInput;
 
-    private float _currentAmbulanceSpeed = 0f;
+    private float _currentSpeed;
     private float _currentBrakeSpeed = 300f;
 
     Rigidbody rb;
@@ -32,8 +35,8 @@ public class Ambulance : MonoBehaviour
 
     private void FixedUpdate()
     {
-        horizontalInput = Input.GetAxis("Horizontal");
-        verticalInput = Input.GetAxis("Vertical");
+        _horizontalInput = Input.GetAxis("Horizontal");
+        _verticalInput = Input.GetAxis("Vertical");
 
         Accelerate();
         Brake();
@@ -45,7 +48,7 @@ public class Ambulance : MonoBehaviour
         {
             if (Input.GetKey(KeyCode.Space))
             {
-                _currentBrakeSpeed = brakeSpeed * verticalInput;
+                _currentBrakeSpeed = brakeSpeed * _verticalInput;
             }
             else
             {
@@ -58,19 +61,29 @@ public class Ambulance : MonoBehaviour
 
     private void Accelerate()
     {
+        var vel = rb.velocity;
+        _currentSpeed = vel.magnitude;
+
         foreach (AxleInfo axle in _ambulanceAxis)
         {
             if (axle.steering)
             {
-                axle.leftWheelCollider.steerAngle = steeringAngle * horizontalInput;
-                axle.rightWheelCollider.steerAngle = steeringAngle * horizontalInput;
+                axle.leftWheelCollider.steerAngle = steeringAngle * _horizontalInput;
+                axle.rightWheelCollider.steerAngle = steeringAngle * _horizontalInput;
             }
 
-            if (axle.acceleration)
+            if (axle.acceleration && _currentSpeed <= maxSpeed)
             {
-                axle.leftWheelCollider.motorTorque = ambulanceSpeed * verticalInput;
-                axle.rightWheelCollider.motorTorque = ambulanceSpeed * verticalInput;
+                axle.leftWheelCollider.motorTorque = accelerationSpeed * _verticalInput;
+                axle.rightWheelCollider.motorTorque = accelerationSpeed * _verticalInput;                
             }
+            else
+            {
+                axle.leftWheelCollider.motorTorque = 0f;
+                axle.rightWheelCollider.motorTorque = 0f;
+            }
+
+            speedText.text = "SPEED: " + _currentSpeed.ToString("0");
 
             VisualWheelsToColliders(axle.leftWheelCollider, axle.leftWheel);
             VisualWheelsToColliders(axle.rightWheelCollider, axle.rightWheel);
