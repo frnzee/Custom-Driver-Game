@@ -1,36 +1,60 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;
 
 public class Ambulance : MonoBehaviour
 {
-    [SerializeField] private AxleInfo [] _ambulanceAxis = new AxleInfo[3];
+    [SerializeField] private AxleInfo[] _ambulanceAxis = new AxleInfo[3];
 
-    public float accelerationSpeed = 100f;
-    public float brakeSpeed = 100f;
-    public float steeringAngle = 30f;
-    public float maxSpeed = 15f;
+    [SerializeField] private float accelerationSpeed = 100f;
+    [SerializeField] private float brakeSpeed = 100f;
+    [SerializeField] private float steeringAngle = 30f;
+    [SerializeField] private float maxSpeed = 15f;
 
-    public Text speedText;
+    [SerializeField] private Text speedText;
 
-    public Transform centerOfMass;
+    [SerializeField] private Transform centerOfMass;
 
-    public ParticleSystem dirt_L;
-    public ParticleSystem dirt_R;
+    [SerializeField] private ParticleSystem dirtLeft;
+    [SerializeField] private ParticleSystem dirtRight;
+
+    private MoveAmbulance _moveAmbulance;
 
     private float _horizontalInput;
     private float _verticalInput;
+    private float _movementX;
+    private float _movementY;
 
     private float _currentSpeed;
     private float _currentBrakeSpeed = 300f;
 
-    Rigidbody rb;
+    private Rigidbody _rigidBody;
+
+    private void Awake()
+    {
+        _moveAmbulance = new MoveAmbulance();
+    }
+
+    private void OnEnable()
+    {
+        _moveAmbulance.Enable();
+    }
+
+    private void OnDisable()
+    {
+        _moveAmbulance.Disable();
+    }
+    private void OnMove(InputValue movementValue)
+    {
+        Vector2 movementVector = movementValue.Get<Vector2>();
+        _movementX = movementVector.x;
+        _movementY = movementVector.y;
+    }
 
     private void Start()
     {
-        rb = GetComponent<Rigidbody>();
-        rb.centerOfMass = centerOfMass.localPosition;
+        _rigidBody = GetComponent<Rigidbody>();
+        _rigidBody.centerOfMass = centerOfMass.localPosition;
     }
 
     private void FixedUpdate()
@@ -40,6 +64,10 @@ public class Ambulance : MonoBehaviour
 
         Accelerate();
         Brake();
+        if (_currentSpeed > 0.2)
+        {
+            StartParticles();
+        }
     }
 
     private void Brake()
@@ -59,9 +87,15 @@ public class Ambulance : MonoBehaviour
         }
     }
 
+    private void StartParticles()
+    {
+        dirtLeft.Play();
+        dirtRight.Play();
+    }
+
     private void Accelerate()
     {
-        var vel = rb.velocity;
+        var vel = _rigidBody.velocity;
         _currentSpeed = vel.magnitude;
 
         foreach (AxleInfo axle in _ambulanceAxis)
@@ -74,16 +108,20 @@ public class Ambulance : MonoBehaviour
 
             if (axle.acceleration && _currentSpeed <= maxSpeed)
             {
+
                 axle.leftWheelCollider.motorTorque = accelerationSpeed * _verticalInput;
-                axle.rightWheelCollider.motorTorque = accelerationSpeed * _verticalInput;                
+                axle.rightWheelCollider.motorTorque = accelerationSpeed * _verticalInput;
             }
             else
             {
                 axle.leftWheelCollider.motorTorque = 0f;
                 axle.rightWheelCollider.motorTorque = 0f;
+                axle.leftWheelCollider.ConfigureVehicleSubsteps(5, 10, 15);
+                axle.rightWheelCollider.ConfigureVehicleSubsteps(5, 10, 15);
+
             }
 
-            speedText.text = "SPEED: " + _currentSpeed.ToString("0");
+            speedText.text = "SPEED: " + (_currentSpeed * 10).ToString("00");
 
             VisualWheelsToColliders(axle.leftWheelCollider, axle.leftWheel);
             VisualWheelsToColliders(axle.rightWheelCollider, axle.rightWheel);
@@ -96,18 +134,4 @@ public class Ambulance : MonoBehaviour
         wheel.position = position;
         wheel.rotation = rotation;
     }
-
-}
-
-[System.Serializable]
-public class AxleInfo
-{
-    public WheelCollider leftWheelCollider;
-    public WheelCollider rightWheelCollider;
-
-    public Transform leftWheel;
-    public Transform rightWheel;
-
-    public bool steering;
-    public bool acceleration;
 }
