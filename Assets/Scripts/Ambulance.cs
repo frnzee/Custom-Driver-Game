@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.InputSystem;
 
 public class Ambulance : MonoBehaviour
 {
@@ -11,19 +10,17 @@ public class Ambulance : MonoBehaviour
     [SerializeField] private float steeringAngle = 30f;
     [SerializeField] private float maxSpeed = 15f;
 
-    [SerializeField] private Text speedText;
-
     [SerializeField] private Transform centerOfMass;
 
     [SerializeField] private ParticleSystem dirtLeft;
     [SerializeField] private ParticleSystem dirtRight;
 
-    private MoveAmbulance _moveAmbulance;
+    [SerializeField] private Text speedText;
+
+    private PlayerControls _playerControls;
 
     private float _horizontalInput;
     private float _verticalInput;
-    private float _movementX;
-    private float _movementY;
 
     private float _currentSpeed;
     private float _currentBrakeSpeed = 300f;
@@ -32,23 +29,17 @@ public class Ambulance : MonoBehaviour
 
     private void Awake()
     {
-        _moveAmbulance = new MoveAmbulance();
+        _playerControls = new PlayerControls();
     }
 
     private void OnEnable()
     {
-        _moveAmbulance.Enable();
+        _playerControls.Enable();
     }
 
     private void OnDisable()
     {
-        _moveAmbulance.Disable();
-    }
-    private void OnMove(InputValue movementValue)
-    {
-        Vector2 movementVector = movementValue.Get<Vector2>();
-        _movementX = movementVector.x;
-        _movementY = movementVector.y;
+        _playerControls.Disable();
     }
 
     private void Start()
@@ -59,8 +50,13 @@ public class Ambulance : MonoBehaviour
 
     private void FixedUpdate()
     {
-        _horizontalInput = Input.GetAxis("Horizontal");
-        _verticalInput = Input.GetAxis("Vertical");
+        //        _horizontalInput = Input.GetAxis("Horizontal");
+        //        _verticalInput = Input.GetAxis("Vertical");
+
+        _horizontalInput = MobileJoystick.Instance.InputVectorX;
+        _verticalInput = MobileJoystick.Instance.InputVectorY;
+
+        Debug.Log(MobileJoystick.Instance.InputVector);
 
         Accelerate();
         Brake();
@@ -82,6 +78,7 @@ public class Ambulance : MonoBehaviour
             {
                 _currentBrakeSpeed = 0f;
             }
+
             axle.leftWheelCollider.brakeTorque = _currentBrakeSpeed;
             axle.rightWheelCollider.brakeTorque = _currentBrakeSpeed;
         }
