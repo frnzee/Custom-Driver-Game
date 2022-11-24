@@ -4,22 +4,9 @@ using UnityEngine.EventSystems;
 
 public class MobileJoystick : MonoBehaviour, IPointerUpHandler, IDragHandler, IPointerDownHandler
 {
-    private static MobileJoystick _instance;
-    public static MobileJoystick Instance
-    {
-        get
-        {
-            if (!_instance)
-            {
-                Debug.LogError("Instance not specified");
-            }
-            return _instance;
-        }
-    }
-
     private RectTransform _joystickTransform;
 
-    [SerializeField] private float _dragThreshold = 0.6f;
+    [SerializeField] private float _dragThreshold = 0;
     [SerializeField] private int _dragMovementDistance = 30;
     [SerializeField] private int _dragOffsetDistance = 100;
 
@@ -40,6 +27,8 @@ public class MobileJoystick : MonoBehaviour, IPointerUpHandler, IDragHandler, IP
         offset = Vector2.ClampMagnitude(offset, _dragOffsetDistance) / _dragOffsetDistance;
         Debug.Log(offset);
 
+
+        _joystickTransform.anchoredPosition = offset * _dragMovementDistance;
         InputVector = CalculateMovementInput(offset);
         OnMove?.Invoke(InputVector);
     }
@@ -51,38 +40,15 @@ public class MobileJoystick : MonoBehaviour, IPointerUpHandler, IDragHandler, IP
         return new Vector2(x, y);
 
     }
+
     public void OnPointerDown(PointerEventData eventData)
     {
-        Debug.Log("Down");
+        InputVector = new Vector2(0, 0);
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
         _joystickTransform.anchoredPosition = Vector2.zero;
         OnMove?.Invoke(Vector2.zero);
-    }
-
-    public float InputVectorX
-    {
-        get
-        {
-            return InputVector.x;
-        }
-    }
-
-    public float InputVectorY
-    {
-        get
-        {
-            return InputVector.y;
-        }
-    }
-
-    private void OnDestroy()
-    {
-        if (_instance == this)
-        {
-            _instance = null;
-        }
     }
 }

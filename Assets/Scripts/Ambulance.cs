@@ -5,19 +5,19 @@ public class Ambulance : MonoBehaviour
 {
     [SerializeField] private AxleInfo[] _ambulanceAxis = new AxleInfo[3];
 
-    [SerializeField] private float accelerationSpeed = 100f;
-    [SerializeField] private float brakeSpeed = 100f;
-    [SerializeField] private float steeringAngle = 30f;
-    [SerializeField] private float maxSpeed = 15f;
+    [SerializeField] private float _accelerationSpeed = 100f;
+    [SerializeField] private float _brakeSpeed = 100f;
+    [SerializeField] private float _steeringAngle = 40f;
+    [SerializeField] private float _maxSpeed = 15f;
 
-    [SerializeField] private Transform centerOfMass;
+    [SerializeField] private Transform _centerOfMass;
 
-    [SerializeField] private ParticleSystem dirtLeft;
-    [SerializeField] private ParticleSystem dirtRight;
+    [SerializeField] private ParticleSystem _dirtLeft;
+    [SerializeField] private ParticleSystem _dirtRight;
 
-    [SerializeField] private Text speedText;
+    [SerializeField] private Text _speedText;
 
-    private PlayerControls _playerControls;
+    private MobileJoystick _mobileJoystick;
 
     private float _horizontalInput;
     private float _verticalInput;
@@ -27,25 +27,11 @@ public class Ambulance : MonoBehaviour
 
     private Rigidbody _rigidBody;
 
-    private void Awake()
-    {
-        _playerControls = new PlayerControls();
-    }
-
-    private void OnEnable()
-    {
-        _playerControls.Enable();
-    }
-
-    private void OnDisable()
-    {
-        _playerControls.Disable();
-    }
-
     private void Start()
     {
         _rigidBody = GetComponent<Rigidbody>();
-        _rigidBody.centerOfMass = centerOfMass.localPosition;
+        _rigidBody.centerOfMass = _centerOfMass.localPosition;
+        _mobileJoystick = GetComponentInChildren<MobileJoystick>();
     }
 
     private void FixedUpdate()
@@ -53,10 +39,10 @@ public class Ambulance : MonoBehaviour
         //        _horizontalInput = Input.GetAxis("Horizontal");
         //        _verticalInput = Input.GetAxis("Vertical");
 
-        _horizontalInput = MobileJoystick.Instance.InputVectorX;
-        _verticalInput = MobileJoystick.Instance.InputVectorY;
+        _horizontalInput = _mobileJoystick.InputVector.x;
+        _verticalInput = _mobileJoystick.InputVector.y;
 
-        Debug.Log(MobileJoystick.Instance.InputVector);
+        Debug.Log(_mobileJoystick.InputVector);
 
         Accelerate();
         Brake();
@@ -72,7 +58,7 @@ public class Ambulance : MonoBehaviour
         {
             if (Input.GetKey(KeyCode.Space))
             {
-                _currentBrakeSpeed = brakeSpeed * _verticalInput;
+                _currentBrakeSpeed = _brakeSpeed * _verticalInput;
             }
             else
             {
@@ -86,8 +72,8 @@ public class Ambulance : MonoBehaviour
 
     private void StartParticles()
     {
-        dirtLeft.Play();
-        dirtRight.Play();
+        _dirtLeft.Play();
+        _dirtRight.Play();
     }
 
     private void Accelerate()
@@ -99,26 +85,26 @@ public class Ambulance : MonoBehaviour
         {
             if (axle.steering)
             {
-                axle.leftWheelCollider.steerAngle = steeringAngle * _horizontalInput;
-                axle.rightWheelCollider.steerAngle = steeringAngle * _horizontalInput;
+                axle.leftWheelCollider.steerAngle = _steeringAngle * _horizontalInput;
+                axle.rightWheelCollider.steerAngle = _steeringAngle * _horizontalInput;
             }
 
-            if (axle.acceleration && _currentSpeed <= maxSpeed)
+            if (axle.acceleration && _currentSpeed <= _maxSpeed)
             {
 
-                axle.leftWheelCollider.motorTorque = accelerationSpeed * _verticalInput;
-                axle.rightWheelCollider.motorTorque = accelerationSpeed * _verticalInput;
+                axle.leftWheelCollider.motorTorque = _accelerationSpeed * _verticalInput;
+                axle.rightWheelCollider.motorTorque = _accelerationSpeed * _verticalInput;
             }
             else
             {
-                axle.leftWheelCollider.motorTorque = 0f;
-                axle.rightWheelCollider.motorTorque = 0f;
                 axle.leftWheelCollider.ConfigureVehicleSubsteps(5, 10, 15);
                 axle.rightWheelCollider.ConfigureVehicleSubsteps(5, 10, 15);
 
+                axle.leftWheelCollider.motorTorque = 0f;
+                axle.rightWheelCollider.motorTorque = 0f;
             }
 
-            speedText.text = "SPEED: " + (_currentSpeed * 10).ToString("00");
+            _speedText.text = "SPEED: " + (_currentSpeed * 10).ToString("00");
 
             VisualWheelsToColliders(axle.leftWheelCollider, axle.leftWheel);
             VisualWheelsToColliders(axle.rightWheelCollider, axle.rightWheel);
@@ -128,7 +114,6 @@ public class Ambulance : MonoBehaviour
     private void VisualWheelsToColliders(WheelCollider wheelCollider, Transform wheel)
     {
         wheelCollider.GetWorldPose(out Vector3 position, out Quaternion rotation);
-        wheel.position = position;
-        wheel.rotation = rotation;
+        wheel.SetPositionAndRotation(position, rotation);
     }
 }

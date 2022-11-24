@@ -21363,7 +21363,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1631388394}
   m_LocalRotation: {x: 0.07725845, y: -0, z: -0, w: 0.9970111}
-  m_LocalPosition: {x: 508, y: -7.8199997, z: 411.61145}
+  m_LocalPosition: {x: 508, y: -8.094, z: 411.61145}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -21434,8 +21434,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerTarget: {fileID: 1983919367}
-  moveSpeed: 14
-  rotationSpeed: 14
+  _moveSpeed: 10
+  _rotationSpeed: 5
 --- !u!4 &1642297503 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8935095989379886729, guid: f5d3c5e0f5f32c141911c08deee9e94d, type: 3}
@@ -22724,7 +22724,6 @@ GameObject:
   - component: {fileID: 1813974508}
   - component: {fileID: 1813974507}
   - component: {fileID: 1813974509}
-  - component: {fileID: 1813974510}
   m_Layer: 5
   m_Name: Joystick
   m_TagString: Untagged
@@ -22806,20 +22805,6 @@ MonoBehaviour:
   _dragMovementDistance: 30
   _dragOffsetDistance: 100
   InputVector: {x: 0, y: 0}
---- !u!114 &1813974510
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1813974505}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e9d677f1681015749b15c436eec6d880, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_MovementRange: 75
-  m_ControlPath: <Gamepad>/leftStick
 --- !u!4 &1814618419 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7499966408349325154, guid: 484e95a1def424c4b9f1ad821e0c226a, type: 3}
@@ -23646,7 +23631,6 @@ GameObject:
   - component: {fileID: 1983919368}
   - component: {fileID: 1983919369}
   - component: {fileID: 1983919365}
-  - component: {fileID: 1983919372}
   m_Layer: 0
   m_Name: Ambulance
   m_TagString: Untagged
@@ -23672,7 +23656,7 @@ MonoBehaviour:
     leftWheel: {fileID: 1009183234}
     rightWheel: {fileID: 1533204134}
     steering: 1
-    acceleration: 1
+    acceleration: 0
   - leftWheelCollider: {fileID: 5742879094387020391}
     rightWheelCollider: {fileID: 9200388574755759027}
     leftWheel: {fileID: 614754323}
@@ -23685,14 +23669,14 @@ MonoBehaviour:
     rightWheel: {fileID: 362824030}
     steering: 0
     acceleration: 1
-  accelerationSpeed: 25
-  brakeSpeed: 100
-  steeringAngle: 25
-  maxSpeed: 10
-  centerOfMass: {fileID: 684958932}
-  dirtLeft: {fileID: 1231577100}
-  dirtRight: {fileID: 131298318}
-  speedText: {fileID: 1294656604}
+  _accelerationSpeed: 100
+  _brakeSpeed: 100
+  _steeringAngle: 40
+  _maxSpeed: 15
+  _centerOfMass: {fileID: 684958932}
+  _dirtLeft: {fileID: 1231577100}
+  _dirtRight: {fileID: 131298318}
+  _speedText: {fileID: 1294656604}
 --- !u!54 &1983919366
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -23717,7 +23701,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1983919364}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 508, y: -8.04, z: 413}
+  m_LocalPosition: {x: 508, y: -8.314, z: 413}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -23758,19 +23742,6 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.33802366, y: 0.1947796, z: 0.6166086}
   m_Center: {x: 0.010545731, y: 0.02915077, z: -0.18575811}
---- !u!114 &1983919372
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1983919364}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ff429aeec6a5d43fca40f50b14b803b1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _joystick: {fileID: 1813974509}
 --- !u!4 &1988713201 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7499966408349325154, guid: 484e95a1def424c4b9f1ad821e0c226a, type: 3}
