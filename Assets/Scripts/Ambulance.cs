@@ -75,7 +75,15 @@ public class Ambulance : MonoBehaviour
     private void FixedUpdate()
     {
         _horizontalInput = _mobileJoystick.InputVector.x;
-        _verticalInput = _mobileJoystick.InputVector.y;
+
+        if (_mobileJoystick.InputVector.y < 0)
+        {
+            _verticalInput = -1;
+        }
+        else
+        {
+            _verticalInput = 1;
+        }
 
         Accelerate();
         StartOrStopParticles();
@@ -126,16 +134,23 @@ public class Ambulance : MonoBehaviour
                 axle.rightWheelCollider.steerAngle = _steeringAngle * _horizontalInput;
             }
 
-            if (axle.acceleration && _currentSpeed <= _maxSpeed && _gasPedal.buttonPressed)
+            if (axle.acceleration && _gasPedal.buttonPressed)
             {
-
-                axle.leftWheelCollider.motorTorque = _accelerationSpeed * _verticalInput;
-                axle.rightWheelCollider.motorTorque = _accelerationSpeed * _verticalInput;
-            }
-            else
-            {
-                axle.leftWheelCollider.motorTorque = 0f;
-                axle.rightWheelCollider.motorTorque = 0f;
+                if (_verticalInput < 0)
+                {
+                    axle.leftWheelCollider.motorTorque = _accelerationSpeed * _verticalInput;
+                    axle.rightWheelCollider.motorTorque = _accelerationSpeed * _verticalInput;
+                }
+                else if (_currentSpeed <= _maxSpeed)
+                {
+                    axle.leftWheelCollider.motorTorque = _accelerationSpeed;
+                    axle.rightWheelCollider.motorTorque = _accelerationSpeed;
+                }
+                else
+                {
+                    axle.leftWheelCollider.motorTorque = 0f;
+                    axle.rightWheelCollider.motorTorque = 0f;
+                }
             }
 
             VisualWheelsToColliders(axle.leftWheelCollider, axle.leftWheel);

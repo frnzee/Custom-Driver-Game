@@ -50,5 +50,6 @@ public class MobileJoystick : MonoBehaviour, IPointerUpHandler, IDragHandler, IP
     {
         _joystickTransform.anchoredPosition = Vector2.zero;
         OnMove?.Invoke(Vector2.zero);
+        InputVector = new Vector2(0, 0);
     }
 }

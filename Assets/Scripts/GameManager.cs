@@ -23,15 +23,15 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _gameTime;
     [SerializeField] private TextMeshProUGUI _bestTime;
     [SerializeField] private TextMeshProUGUI _speed;
+
     [SerializeField] private FinishLine _finishLine;
 
     private GameState _currentGameState;
 
     private float _timeValue;
     private float _lapTimeValue;
-    private float _currentSpeed;
-
-    private int _lapCount = 0;
+    private float _bestTimeValue = 99999999999f;
+    private int _lastLapCount = 0;
 
     private void Awake()
     {
@@ -56,8 +56,24 @@ public class GameManager : MonoBehaviour
 
     private void UpdateLapCount()
     {
-
+        UpdateBestLapTime();
+        _lastLapCount = _finishLine.LapCounter;
+        _lapCounter.text = "Laps: " + _lastLapCount.ToString();
     }
+
+    private void UpdateBestLapTime()
+    {
+        if (_finishLine.LapCounter > _lastLapCount)
+        {
+            if (_lapTimeValue < _bestTimeValue)
+            {
+                _bestTimeValue = _lapTimeValue;
+                _lapTimeValue = 0f;
+            }
+        }
+        _bestTime.text = "Best time: " + _bestTimeValue.ToString("0.0");
+    }
+
     private void Update()
     {
         if (_currentGameState == GameState.Game)
@@ -69,6 +85,8 @@ public class GameManager : MonoBehaviour
             _lapTime.text = "Lap Time: " + _lapTimeValue.ToString("0.0");
 
             _speed.text = "SPEED: " + (Ambulance.Instance.CurrentSpeed * 10).ToString("00");
+
+            UpdateLapCount();
         }
     }
 }
