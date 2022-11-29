@@ -3,6 +3,27 @@ using UnityEngine.UI;
 
 public class Ambulance : MonoBehaviour
 {
+    private static Ambulance _instance;
+    public static Ambulance Instance
+    {
+        get
+        {
+            if (!_instance)
+            {
+                Debug.LogError("Instance is not specified");
+            }
+            return _instance;
+        }
+    }
+
+    public float CurrentSpeed
+    {
+        get
+        {
+            return _currentSpeed;
+        }
+    }
+
     [SerializeField] private AxleInfo[] _ambulanceAxis = new AxleInfo[3];
 
     [SerializeField] private float _accelerationSpeed = 100f;
@@ -25,10 +46,15 @@ public class Ambulance : MonoBehaviour
     private float _currentSpeed;
     private float _currentBrakeSpeed;
 
+    private Rigidbody _rigidBody;
+
     private GasPedal _gasPedal;
     private BrakePedal _brakePedal;
 
-    private Rigidbody _rigidBody;
+    private void Awake()
+    {
+        _instance = this;
+    }
 
     private void Start()
     {
@@ -63,7 +89,6 @@ public class Ambulance : MonoBehaviour
             if (_brakePedal.buttonPressed)
             {
                 _currentBrakeSpeed = _brakeSpeed;
-                Debug.Log(_currentBrakeSpeed);
             }
             else
             {
@@ -91,8 +116,7 @@ public class Ambulance : MonoBehaviour
 
     private void Accelerate()
     {
-        var vel = _rigidBody.velocity;
-        _currentSpeed = vel.magnitude;
+        _currentSpeed = _rigidBody.velocity.magnitude;
 
         foreach (AxleInfo axle in _ambulanceAxis)
         {
@@ -114,8 +138,6 @@ public class Ambulance : MonoBehaviour
                 axle.rightWheelCollider.motorTorque = 0f;
             }
 
-            _speedText.text = "SPEED: " + (_currentSpeed * 10).ToString("00");
-
             VisualWheelsToColliders(axle.leftWheelCollider, axle.leftWheel);
             VisualWheelsToColliders(axle.rightWheelCollider, axle.rightWheel);
         }
@@ -125,5 +147,13 @@ public class Ambulance : MonoBehaviour
     {
         wheelCollider.GetWorldPose(out Vector3 position, out Quaternion rotation);
         wheel.SetPositionAndRotation(position, rotation);
+    }
+
+    private void OnDestroy()
+    {
+        if (_instance == this)
+        {
+            _instance = null;
+        }
     }
 }
