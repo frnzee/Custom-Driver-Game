@@ -7,7 +7,7 @@ public class MobileJoystick : MonoBehaviour, IPointerUpHandler, IDragHandler, IP
     private RectTransform _joystickTransform;
 
     [SerializeField] private float _dragThreshold = 0;
-    [SerializeField] private int _dragMovementDistance = 30;
+    [SerializeField] private int _dragMovementDistance = 75;
     [SerializeField] private int _dragOffsetDistance = 100;
 
     public event Action<Vector2> OnMove;

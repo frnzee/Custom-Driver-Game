@@ -23,7 +23,10 @@ public class Ambulance : MonoBehaviour
     private float _verticalInput;
 
     private float _currentSpeed;
-    private float _currentBrakeSpeed = 300f;
+    private float _currentBrakeSpeed;
+
+    private GasPedal _gasPedal;
+    private BrakePedal _brakePedal;
 
     private Rigidbody _rigidBody;
 
@@ -31,34 +34,36 @@ public class Ambulance : MonoBehaviour
     {
         _rigidBody = GetComponent<Rigidbody>();
         _rigidBody.centerOfMass = _centerOfMass.localPosition;
+
         _mobileJoystick = GetComponentInChildren<MobileJoystick>();
+        _gasPedal = GetComponentInChildren<GasPedal>();
+        _brakePedal = GetComponentInChildren<BrakePedal>();
+
+        foreach (AxleInfo axle in _ambulanceAxis)
+        {
+            axle.leftWheelCollider.ConfigureVehicleSubsteps(5, 10, 15);
+            axle.rightWheelCollider.ConfigureVehicleSubsteps(5, 10, 15);
+        }
     }
 
     private void FixedUpdate()
     {
-        //        _horizontalInput = Input.GetAxis("Horizontal");
-        //        _verticalInput = Input.GetAxis("Vertical");
-
         _horizontalInput = _mobileJoystick.InputVector.x;
         _verticalInput = _mobileJoystick.InputVector.y;
 
-        Debug.Log(_mobileJoystick.InputVector);
-
         Accelerate();
+        StartOrStopParticles();
         Brake();
-        if (_currentSpeed > 0.2)
-        {
-            StartParticles();
-        }
     }
 
     private void Brake()
     {
         foreach (AxleInfo axle in _ambulanceAxis)
         {
-            if (Input.GetKey(KeyCode.Space))
+            if (_brakePedal.buttonPressed)
             {
-                _currentBrakeSpeed = _brakeSpeed * _verticalInput;
+                _currentBrakeSpeed = _brakeSpeed;
+                Debug.Log(_currentBrakeSpeed);
             }
             else
             {
@@ -70,10 +75,18 @@ public class Ambulance : MonoBehaviour
         }
     }
 
-    private void StartParticles()
+    private void StartOrStopParticles()
     {
-        _dirtLeft.Play();
-        _dirtRight.Play();
+        if (_gasPedal.buttonPressed)
+        {
+            _dirtLeft.Play();
+            _dirtRight.Play();
+        }
+        else
+        {
+            _dirtLeft.Stop();
+            _dirtRight.Stop();
+        }
     }
 
     private void Accelerate()
@@ -89,7 +102,7 @@ public class Ambulance : MonoBehaviour
                 axle.rightWheelCollider.steerAngle = _steeringAngle * _horizontalInput;
             }
 
-            if (axle.acceleration && _currentSpeed <= _maxSpeed)
+            if (axle.acceleration && _currentSpeed <= _maxSpeed && _gasPedal.buttonPressed)
             {
 
                 axle.leftWheelCollider.motorTorque = _accelerationSpeed * _verticalInput;
@@ -97,9 +110,6 @@ public class Ambulance : MonoBehaviour
             }
             else
             {
-                axle.leftWheelCollider.ConfigureVehicleSubsteps(5, 10, 15);
-                axle.rightWheelCollider.ConfigureVehicleSubsteps(5, 10, 15);
-
                 axle.leftWheelCollider.motorTorque = 0f;
                 axle.rightWheelCollider.motorTorque = 0f;
             }
