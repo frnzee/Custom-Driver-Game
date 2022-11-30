@@ -16,14 +16,6 @@ public class Ambulance : MonoBehaviour
         }
     }
 
-    public float CurrentSpeed
-    {
-        get
-        {
-            return _currentSpeed;
-        }
-    }
-
     [SerializeField] private AxleInfo[] _ambulanceAxis = new AxleInfo[3];
 
     [SerializeField] private float _accelerationSpeed = 100f;
@@ -51,19 +43,21 @@ public class Ambulance : MonoBehaviour
     private GasPedal _gasPedal;
     private BrakePedal _brakePedal;
 
+    public float CurrentSpeed => _currentSpeed;
+
     private void Awake()
     {
         _instance = this;
+
+        _rigidBody = GetComponent<Rigidbody>();
+        _mobileJoystick = GetComponentInChildren<MobileJoystick>();
+        _gasPedal = GetComponentInChildren<GasPedal>();
+        _brakePedal = GetComponentInChildren<BrakePedal>();
     }
 
     private void Start()
     {
-        _rigidBody = GetComponent<Rigidbody>();
         _rigidBody.centerOfMass = _centerOfMass.localPosition;
-
-        _mobileJoystick = GetComponentInChildren<MobileJoystick>();
-        _gasPedal = GetComponentInChildren<GasPedal>();
-        _brakePedal = GetComponentInChildren<BrakePedal>();
 
         foreach (AxleInfo axle in _ambulanceAxis)
         {
@@ -74,34 +68,33 @@ public class Ambulance : MonoBehaviour
 
     private void FixedUpdate()
     {
+        AccelerateAndSteer();
+        Brake();
+    }
+
+    private void Update()
+    {
         _horizontalInput = _mobileJoystick.InputVector.x;
 
-        if (_mobileJoystick.InputVector.y < 0)
+        if (_mobileJoystick.InputVector.y == 0)
         {
-            _verticalInput = -1;
+            _verticalInput = 0;
         }
         else
         {
-            _verticalInput = 1;
+            _verticalInput = _mobileJoystick.InputVector.y < 0 ? -1 : 1;
         }
 
-        Accelerate();
+        _currentSpeed = _rigidBody.velocity.magnitude;
+
         StartOrStopParticles();
-        Brake();
     }
 
     private void Brake()
     {
         foreach (AxleInfo axle in _ambulanceAxis)
         {
-            if (_brakePedal.buttonPressed)
-            {
-                _currentBrakeSpeed = _brakeSpeed;
-            }
-            else
-            {
-                _currentBrakeSpeed = 0f;
-            }
+            _currentBrakeSpeed = _brakePedal.ButtonPressed ? _brakeSpeed : 0f;
 
             axle.leftWheelCollider.brakeTorque = _currentBrakeSpeed;
             axle.rightWheelCollider.brakeTorque = _currentBrakeSpeed;
@@ -110,7 +103,7 @@ public class Ambulance : MonoBehaviour
 
     private void StartOrStopParticles()
     {
-        if (_gasPedal.buttonPressed)
+        if (_gasPedal.ButtonPressed)
         {
             _dirtLeft.Play();
             _dirtRight.Play();
@@ -122,10 +115,8 @@ public class Ambulance : MonoBehaviour
         }
     }
 
-    private void Accelerate()
+    private void AccelerateAndSteer()
     {
-        _currentSpeed = _rigidBody.velocity.magnitude;
-
         foreach (AxleInfo axle in _ambulanceAxis)
         {
             if (axle.steering)
@@ -134,14 +125,14 @@ public class Ambulance : MonoBehaviour
                 axle.rightWheelCollider.steerAngle = _steeringAngle * _horizontalInput;
             }
 
-            if (axle.acceleration && _gasPedal.buttonPressed)
+            if (axle.acceleration && _gasPedal.ButtonPressed)
             {
                 if (_verticalInput < 0)
                 {
-                    axle.leftWheelCollider.motorTorque = _accelerationSpeed * _verticalInput;
-                    axle.rightWheelCollider.motorTorque = _accelerationSpeed * _verticalInput;
+                    axle.leftWheelCollider.motorTorque = -_accelerationSpeed;
+                    axle.rightWheelCollider.motorTorque = -_accelerationSpeed;
                 }
-                else if (_currentSpeed <= _maxSpeed)
+                else if (_currentSpeed <= _maxSpeed && _verticalInput > 0)
                 {
                     axle.leftWheelCollider.motorTorque = _accelerationSpeed;
                     axle.rightWheelCollider.motorTorque = _accelerationSpeed;
@@ -153,12 +144,12 @@ public class Ambulance : MonoBehaviour
                 }
             }
 
-            VisualWheelsToColliders(axle.leftWheelCollider, axle.leftWheel);
-            VisualWheelsToColliders(axle.rightWheelCollider, axle.rightWheel);
+            RotateWheels(axle.leftWheelCollider, axle.leftWheel);
+            RotateWheels(axle.rightWheelCollider, axle.rightWheel);
         }
     }
 
-    private void VisualWheelsToColliders(WheelCollider wheelCollider, Transform wheel)
+    private void RotateWheels(WheelCollider wheelCollider, Transform wheel)
     {
         wheelCollider.GetWorldPose(out Vector3 position, out Quaternion rotation);
         wheel.SetPositionAndRotation(position, rotation);

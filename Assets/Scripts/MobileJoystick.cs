@@ -10,9 +10,7 @@ public class MobileJoystick : MonoBehaviour, IPointerUpHandler, IDragHandler, IP
     [SerializeField] private int _dragMovementDistance = 75;
     [SerializeField] private int _dragOffsetDistance = 100;
 
-    public event Action<Vector2> OnMove;
-
-    public Vector2 InputVector;
+    public Vector2 InputVector { get; private set; }
 
     private void Awake()
     {
@@ -22,15 +20,11 @@ public class MobileJoystick : MonoBehaviour, IPointerUpHandler, IDragHandler, IP
 
     public void OnDrag(PointerEventData eventData)
     {
-        Vector2 offset;
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(_joystickTransform, eventData.position, null, out offset);
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(_joystickTransform, eventData.position, null, out Vector2 offset);
         offset = Vector2.ClampMagnitude(offset, _dragOffsetDistance) / _dragOffsetDistance;
-        Debug.Log(offset);
-
 
         _joystickTransform.anchoredPosition = offset * _dragMovementDistance;
         InputVector = CalculateMovementInput(offset);
-        OnMove?.Invoke(InputVector);
     }
 
     private Vector2 CalculateMovementInput(Vector2 offset)
@@ -43,13 +37,11 @@ public class MobileJoystick : MonoBehaviour, IPointerUpHandler, IDragHandler, IP
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        InputVector = new Vector2(0, 0);
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
         _joystickTransform.anchoredPosition = Vector2.zero;
-        OnMove?.Invoke(Vector2.zero);
         InputVector = new Vector2(0, 0);
     }
 }

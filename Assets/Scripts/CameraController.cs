@@ -7,18 +7,18 @@ public class CameraController : MonoBehaviour
     [SerializeField] private float _moveSpeed;
     [SerializeField] private float _rotationSpeed;
 
-    Quaternion startRotation;
+    private Quaternion _startRotation;
     Vector3 offset;
 
     private void Start()
     {
         offset = transform.position - playerTarget.position;
-        startRotation = transform.rotation;
+        _startRotation = transform.rotation;
     }
 
-    private void FixedUpdate()
+    private void LateUpdate()
     {
-        transform.position = Vector3.Lerp(transform.position, playerTarget.position + transform.rotation * offset, _moveSpeed * Time.fixedDeltaTime);
-        transform.rotation = Quaternion.Lerp(transform.rotation, playerTarget.rotation * startRotation, _rotationSpeed * Time.fixedDeltaTime);
+        transform.SetPositionAndRotation(Vector3.Lerp(transform.position, playerTarget.position + transform.rotation * offset, _moveSpeed * Time.fixedDeltaTime),
+                                      Quaternion.Lerp(transform.rotation, playerTarget.rotation * _startRotation, _rotationSpeed * Time.fixedDeltaTime));
     }
 }

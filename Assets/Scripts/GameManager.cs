@@ -17,7 +17,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Button _startButton;
     [SerializeField] private Button _restartButton;
 
-    [SerializeField] private TextMeshProUGUI _startCounter;
+    [SerializeField] private TextMeshProUGUI _startCounterText;
     [SerializeField] private TextMeshProUGUI _lapTime;
     [SerializeField] private TextMeshProUGUI _lapCounter;
     [SerializeField] private TextMeshProUGUI _gameTime;
@@ -25,12 +25,13 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _speed;
 
     [SerializeField] private FinishLine _finishLine;
+    [SerializeField] private CountDown _startCounter;
 
     private GameState _currentGameState;
 
     private float _timeValue;
     private float _lapTimeValue;
-    private float _bestTimeValue = 99999999999f;
+    private float _bestTimeValue = float.MaxValue;
     private int _lastLapCount = 0;
 
     private void Awake()
@@ -47,6 +48,7 @@ public class GameManager : MonoBehaviour
     {
         _startMenu.SetActive(false);
         _currentGameState = GameState.Game;
+        _startCounter.LevelStart(true);
     }
 
     public void RestartGame()
@@ -58,7 +60,7 @@ public class GameManager : MonoBehaviour
     {
         UpdateBestLapTime();
         _lastLapCount = _finishLine.LapCounter;
-        _lapCounter.text = "Laps: " + _lastLapCount.ToString();
+        _lapCounter.text = $"Laps: {_lastLapCount}";
     }
 
     private void UpdateBestLapTime()
@@ -71,20 +73,25 @@ public class GameManager : MonoBehaviour
                 _lapTimeValue = 0f;
             }
         }
-        _bestTime.text = "Best time: " + _bestTimeValue.ToString("0.0");
+        _bestTime.text = $"Best time: {_bestTimeValue}";
     }
 
     private void Update()
     {
+        if (_startCounter.CurrentGameState)
+        {
+            _currentGameState = GameState.Game;
+        }
+
         if (_currentGameState == GameState.Game)
         {
             _timeValue += Time.deltaTime;
             _lapTimeValue += Time.deltaTime;
 
-            _gameTime.text = "Game Time: " + _timeValue.ToString("0.0");
-            _lapTime.text = "Lap Time: " + _lapTimeValue.ToString("0.0");
+            _gameTime.text = $"Game Time: {_timeValue}";
+            _lapTime.text = $"Lap Time: {_lapTimeValue.ToString("0.0")}";
 
-            _speed.text = "SPEED: " + (Ambulance.Instance.CurrentSpeed * 10).ToString("00");
+            _speed.text = $"SPEED: {Ambulance.Instance.CurrentSpeed * 10:00}";
 
             UpdateLapCount();
         }

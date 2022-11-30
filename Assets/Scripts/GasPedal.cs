@@ -4,15 +4,15 @@ using UnityEngine.EventSystems;
 public class GasPedal : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
 
-    public bool buttonPressed;
+    public bool ButtonPressed { get; private set; }
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        buttonPressed = true;
+        ButtonPressed = true;
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        buttonPressed = false;
+        ButtonPressed = false;
     }
 }
