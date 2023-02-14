@@ -3,97 +3,96 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using TMPro;
 
-public class GameManager : MonoBehaviour
+public partial class GameManager : MonoBehaviour
 {
-    private enum GameState
-    {
-        None,
-        Game,
-        Win
-    }
-
-    [SerializeField] private GameObject _startMenu;
+    private const int SpeedModifierForUI = 10;
 
     [SerializeField] private Button _startButton;
     [SerializeField] private Button _restartButton;
-
-    [SerializeField] private TextMeshProUGUI _startCounterText;
     [SerializeField] private TextMeshProUGUI _lapTime;
     [SerializeField] private TextMeshProUGUI _lapCounter;
     [SerializeField] private TextMeshProUGUI _gameTime;
     [SerializeField] private TextMeshProUGUI _bestTime;
     [SerializeField] private TextMeshProUGUI _speed;
+    [SerializeField] private TextMeshProUGUI _score;
 
     [SerializeField] private FinishLine _finishLine;
     [SerializeField] private CountDown _startCounter;
-
-    private GameState _currentGameState;
+    [SerializeField] private GameObject _startMenu;
 
     private float _timeValue;
     private float _lapTimeValue;
-    private float _bestTimeValue = float.MaxValue;
+    private float _bestTimeValue = Mathf.Infinity;
     private int _lastLapCount = 0;
+    private int _scoreValue = 0;
 
-    private void Awake()
-    {
-        _startMenu.SetActive(true);
-        _currentGameState = GameState.None;
-    }
+    public GameState CurrentGameState { get; private set; }
 
     private void Start()
     {
+        _startMenu.SetActive(true);
+        CurrentGameState = GameState.None;
     }
 
     public void StartGame()
     {
         _startMenu.SetActive(false);
-        _currentGameState = GameState.Game;
-        _startCounter.LevelStart(true);
+        CurrentGameState = GameState.Countdown;
+        _startCounter.LevelStart();
+        Ambulance.Instance.ShowMoveControls();
     }
 
-    public void RestartGame()
+    public void StartRace()
     {
-        SceneManager.LoadScene("DriverScene");
+        CurrentGameState = GameState.Game;
+    }
+
+    private void Update()
+    {
+        if (CurrentGameState == GameState.Game)
+        {
+            _timeValue += Time.deltaTime;
+            _lapTimeValue += Time.deltaTime;
+
+            _gameTime.text = $"Game Time: {_timeValue:0.0}";
+            _lapTime.text = $"Lap Time: {_lapTimeValue:0.0}";
+
+            _speed.text = $"SPEED: {Ambulance.Instance.CurrentSpeed * SpeedModifierForUI:00}";
+
+            UpdateLapCount();
+        }
     }
 
     private void UpdateLapCount()
     {
-        UpdateBestLapTime();
+        if (_finishLine.LapCounter > _lastLapCount)
+        {
+            UpdateBestLapTime();
+        }
+
         _lastLapCount = _finishLine.LapCounter;
         _lapCounter.text = $"Laps: {_lastLapCount}";
     }
 
     private void UpdateBestLapTime()
     {
-        if (_finishLine.LapCounter > _lastLapCount)
+        if (_lapTimeValue < _bestTimeValue)
         {
-            if (_lapTimeValue < _bestTimeValue)
-            {
-                _bestTimeValue = _lapTimeValue;
-                _lapTimeValue = 0f;
-            }
+            _bestTimeValue = _lapTimeValue;
+            _lapTimeValue = 0f;
         }
-        _bestTime.text = $"Best time: {_bestTimeValue}";
+
+        _bestTime.text = $"Best time: {_bestTimeValue:0.0}";
     }
 
-    private void Update()
+    public void UpdateScore()
     {
-        if (_startCounter.CurrentGameState)
-        {
-            _currentGameState = GameState.Game;
-        }
+        ++_scoreValue;
+        _score.text = "Score: " + _scoreValue.ToString();
+    }
 
-        if (_currentGameState == GameState.Game)
-        {
-            _timeValue += Time.deltaTime;
-            _lapTimeValue += Time.deltaTime;
-
-            _gameTime.text = $"Game Time: {_timeValue}";
-            _lapTime.text = $"Lap Time: {_lapTimeValue.ToString("0.0")}";
-
-            _speed.text = $"SPEED: {Ambulance.Instance.CurrentSpeed * 10:00}";
-
-            UpdateLapCount();
-        }
+    public void RestartGame()
+    {
+        SceneManager.LoadScene("DriverScene");
     }
 }

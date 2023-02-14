@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 3147286611876728929}
   - component: {fileID: 3147286611876728933}
   m_Layer: 0
-  m_Name: Spherical Putin
+  m_Name: Ball
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -63,7 +63,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: ca81a2cb132df4461952dab14058d31d, type: 2}
+  - {fileID: 2100000, guid: 8e1dd6549807340f5ba041da5374eff8, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

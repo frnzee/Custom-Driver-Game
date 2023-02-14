@@ -1,14 +1,13 @@
-using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class MobileJoystick : MonoBehaviour, IPointerUpHandler, IDragHandler, IPointerDownHandler
 {
-    private RectTransform _joystickTransform;
-
-    [SerializeField] private float _dragThreshold = 0;
+    [SerializeField] private float _dragThreshold = 0.2f;
     [SerializeField] private int _dragMovementDistance = 75;
     [SerializeField] private int _dragOffsetDistance = 100;
+
+    private RectTransform _joystickTransform;
 
     public Vector2 InputVector { get; private set; }
 
@@ -32,7 +31,6 @@ public class MobileJoystick : MonoBehaviour, IPointerUpHandler, IDragHandler, IP
         float x = Mathf.Abs(offset.x) > _dragThreshold ? offset.x : 0;
         float y = Mathf.Abs(offset.y) > _dragThreshold ? offset.y : 0;
         return new Vector2(x, y);
-
     }
 
     public void OnPointerDown(PointerEventData eventData)

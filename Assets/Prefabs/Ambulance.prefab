@@ -9711,7 +9711,7 @@ Rigidbody:
   m_IsKinematic: 0
   m_Interpolate: 1
   m_Constraints: 0
-  m_CollisionDetection: 0
+  m_CollisionDetection: 2
 --- !u!114 &194490631591232155
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9724,6 +9724,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 30bc2c4158d3f4d00833bc5946778e2b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _accelerationSpeed: 50
+  _brakeSpeed: 50
+  _steeringAngle: 35
+  _maxSpeed: 10
   _ambulanceAxis:
   - leftWheelCollider: {fileID: 7653130368969451580}
     rightWheelCollider: {fileID: 8137536349600176914}
@@ -9743,14 +9747,11 @@ MonoBehaviour:
     rightWheel: {fileID: 5976385829066162170}
     steering: 0
     acceleration: 1
-  accelerationSpeed: 25
-  brakeSpeed: 100
-  steeringAngle: 25
-  maxSpeed: 10
-  speedText: {fileID: 0}
-  centerOfMass: {fileID: 194490630493213514}
-  dirtLeft: {fileID: 194490631036032914}
-  dirtRight: {fileID: 194490629738218384}
+  _gameManager: {fileID: 0}
+  _centerOfMass: {fileID: 0}
+  _dirtLeft: {fileID: 0}
+  _dirtRight: {fileID: 0}
+  _moveControls: {fileID: 0}
 --- !u!64 &194490631591232150
 MeshCollider:
   m_ObjectHideFlags: 0
